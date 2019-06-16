@@ -89,14 +89,14 @@ int git_odb__format_object_header(
 	size_t *written,
 	char *hdr,
 	size_t hdr_size,
-	git_off_t obj_len,
+	git_object_size_t obj_len,
 	git_object_t obj_type)
 {
 	const char *type_str = git_object_type2string(obj_type);
 	int hdr_max = (hdr_size > INT_MAX-2) ? (INT_MAX-2) : (int)hdr_size;
 	int len;
 
-	len = p_snprintf(hdr, hdr_max, "%s %"PRId64, type_str, (int64_t)obj_len);
+	len = p_snprintf(hdr, hdr_max, "%s %"PRIu64, type_str, (int64_t)obj_len);
 
 	if (len < 0 || len >= hdr_max) {
 		git_error_set(GIT_ERROR_OS, "object header creation failed");
@@ -320,12 +320,12 @@ int git_odb__hashlink(git_oid *out, const char *path)
 
 int git_odb_hashfile(git_oid *out, const char *path, git_object_t type)
 {
-	git_off_t size;
+	git_object_size_t size;
 	int result, fd = git_futils_open_ro(path);
 	if (fd < 0)
 		return fd;
 
-	if ((size = git_futils_filesize(fd)) < 0 || !git__is_sizet(size)) {
+	if (git_futils_filesize(&size, fd) < 0 || !git__is_sizet(size)) {
 		git_error_set(GIT_ERROR_OS, "file size overflow for 32-bit systems");
 		p_close(fd);
 		return -1;
@@ -385,7 +385,7 @@ static void fake_wstream__free(git_odb_stream *_stream)
 	git__free(stream);
 }
 
-static int init_fake_wstream(git_odb_stream **stream_p, git_odb_backend *backend, git_off_t size, git_object_t type)
+static int init_fake_wstream(git_odb_stream **stream_p, git_odb_backend *backend, git_object_size_t size, git_object_t type)
 {
 	fake_wstream *stream;
 	size_t blobsize;
@@ -1318,7 +1318,7 @@ int git_odb_write(
 	return error;
 }
 
-static int hash_header(git_hash_ctx *ctx, git_off_t size, git_object_t type)
+static int hash_header(git_hash_ctx *ctx, git_object_size_t size, git_object_t type)
 {
 	char header[64];
 	size_t hdrlen;
@@ -1332,7 +1332,7 @@ static int hash_header(git_hash_ctx *ctx, git_off_t size, git_object_t type)
 }
 
 int git_odb_open_wstream(
-	git_odb_stream **stream, git_odb *db, git_off_t size, git_object_t type)
+	git_odb_stream **stream, git_odb *db, git_object_size_t size, git_object_t type)
 {
 	size_t i, writes = 0;
 	int error = GIT_ERROR;

@@ -207,10 +207,10 @@ on_error:
 /**
  * Truncate or extend file.
  *
- * We now take a "git_off_t" rather than "long" because
+ * We now take a "git_object_size_t" rather than "long" because
  * files may be longer than 2Gb.
  */
-int p_ftruncate(int fd, git_off_t size)
+int p_ftruncate(int fd, git_object_size_t size)
 {
 	if (size < 0) {
 		errno = EINVAL;

@@ -38,17 +38,14 @@ GIT_BEGIN_DECL
 
 #if defined(_MSC_VER)
 
-typedef __int64 git_off_t;
 typedef __time64_t git_time_t;
 
 #elif defined(__MINGW32__)
 
-typedef off64_t git_off_t;
 typedef __time64_t git_time_t;
 
 #elif defined(__HAIKU__)
 
-typedef __haiku_std_int64 git_off_t;
 typedef __haiku_std_int64 git_time_t;
 
 #else /* POSIX */
@@ -58,7 +55,6 @@ typedef __haiku_std_int64 git_time_t;
  * before us (directly or indirectly), they'll get 32 bit off_t in their client
  * app, even though /we/ define _FILE_OFFSET_BITS=64.
  */
-typedef int64_t git_off_t;
 typedef int64_t git_time_t; /**< time in seconds from epoch */
 
 #endif
@@ -77,6 +73,9 @@ typedef enum {
 	GIT_OBJECT_OFS_DELTA = 6, /**< A delta, base is given by an offset. */
 	GIT_OBJECT_REF_DELTA = 7, /**< A delta, base is given by object id. */
 } git_object_t;
+
+/** The maximum size of an object */
+typedef uint64_t git_object_size_t;
 
 /** An open object database handle. */
 typedef struct git_odb git_odb;
